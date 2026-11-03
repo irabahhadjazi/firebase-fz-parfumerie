@@ -1,0 +1,1044 @@
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    
+    // Serve the main HTML file
+    if (url.pathname === '/' || url.pathname === '/FZ Parfumerie.html') {
+      return new Response(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FZ Parfumerie</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    :root {
+      --black: #000000;
+      --cream: #F5F0E6;
+      --cream-soft: #EFE8DB;
+      --gold: #C9A227;
+      --gold-light: #D4B75A;
+      --white: #FFFFFF;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --overlay: rgba(0,0,0,0.5);
+      --shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--cream);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .status-bar {
+      background: var(--black);
+      color: var(--white);
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .notch {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 30px;
+      background: var(--black);
+      border-radius: 0 0 20px 20px;
+      z-index: 1001;
+      display: none;
+    }
+    @media (max-width: 400px) { .notch { display: block; } }
+    .home-indicator {
+      position: fixed;
+      bottom: 8px; left: 50%;
+      transform: translateX(-50%);
+      width: 134px; height: 5px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+      z-index: 1000;
+    }
+    .app-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+    }
+    .app-content { flex: 1; padding-bottom: 100px; }
+
+    /* Login */
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      background: var(--black);
+    }
+    .logo-container { text-align: center; margin-bottom: 60px; }
+    .logo-icon {
+      width: 80px; height: 80px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      color: var(--black);
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(201, 162, 39, 0.4);
+    }
+    .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 2px;
+      font-family: Georgia, serif;
+    }
+    .login-subtitle {
+      color: var(--gold);
+      font-size: 14px;
+      margin-top: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .login-form {
+      width: 100%;
+      max-width: 320px;
+      background: var(--white);
+      padding: 30px;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--cream-soft);
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: var(--cream);
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+    }
+    .form-group input::placeholder { color: #aaa; }
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--gold);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover { background: var(--gold); color: var(--black); }
+    .error-message {
+      background: #fee;
+      color: #c00;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 15px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .error-message.show { display: block; }
+
+    .main-app { display: none; }
+
+    /* Nav */
+    .nav-bar {
+      background: var(--black);
+      color: var(--white);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-brand-icon {
+      width: 30px; height: 30px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--black);
+    }
+    .nav-brand-text {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 1px;
+    }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--cream);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--text-primary);
+    }
+    .btn-icon:hover { background: var(--gold); color: var(--black); }
+    .btn-icon svg { width: 20px; height: 20px; }
+
+    /* Parfume List */
+    .section-header {
+      padding: 20px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: Georgia, serif;
+    }
+    .section-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+    .parfume-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+      padding: 0 15px 20px;
+    }
+    .parfume-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .parfume-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .parfume-card:active { transform: scale(0.98); }
+    .parfume-image {
+      width: 100%;
+      height: 160px;
+      background: var(--cream-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .parfume-image img { width: 100%; height: 100%; object-fit: cover; }
+    .parfume-image svg { width: 40px; height: 40px; color: var(--text-secondary); }
+    .parfume-info { padding: 12px; }
+    .parfume-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .parfume-brand { font-size: 12px; color: var(--text-secondary); }
+
+    .parfume-card-actions {
+      position: absolute;
+      top: 8px; right: 8px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .parfume-card:hover .parfume-card-actions { opacity: 1; }
+    .btn-action {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--white);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+    }
+    .btn-action:hover { background: var(--gold); color: var(--black); }
+    .btn-action svg { width: 14px; height: 14px; }
+    .btn-action-danger:hover { background: #e74c3c; color: white; }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 40px;
+      color: var(--text-secondary);
+    }
+    .empty-state svg { width: 60px; height: 60px; color: var(--cream-soft); margin-bottom: 20px; }
+    .empty-state h3 { font-size: 18px; color: var(--text-primary); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; margin-bottom: 20px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--overlay);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-sheet {
+      background: var(--white);
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--cream-soft);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: Georgia, serif;
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px; right: 15px;
+      width: 35px; height: 35px;
+      border-radius: 50%;
+      background: var(--cream);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .modal-close:hover { background: var(--gold); color: var(--black); }
+
+    .form-row { margin-bottom: 15px; }
+    .form-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-row input, .form-row textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--cream-soft);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: var(--cream);
+      resize: vertical;
+    }
+    .form-row textarea { min-height: 80px; }
+    .form-row input:focus, .form-row textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+    }
+    .form-row input::placeholder, .form-row textarea::placeholder { color: #aaa; }
+
+    .image-preview {
+      width: 100%;
+      height: 150px;
+      background: var(--cream-soft);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 2px dashed var(--cream-soft);
+    }
+    .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .image-preview svg { width: 32px; height: 32px; color: var(--text-secondary); }
+    .image-upload-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--cream);
+      border: 2px dashed var(--gold);
+      border-radius: var(--radius-md);
+      color: var(--gold);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .image-upload-btn:hover { background: rgba(201, 162, 39, 0.1); }
+    .form-row.image-upload { position: relative; }
+    .form-row.image-upload input[type="file"] {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .form-actions .btn-primary { flex: 1; }
+    .form-actions .btn-cancel {
+      flex: 1;
+      background: var(--cream);
+      color: var(--text-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .form-actions .btn-cancel:hover { background: var(--cream-soft); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--black);
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 2000;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--gold); color: var(--black); }
+
+    ::-webkit-scrollbar { display: none; }
+
+    .loading { display: flex; align-items: center; justify-content: center; padding: 40px; }
+    .spinner {
+      width: 30px; height: 30px;
+      border: 3px solid var(--cream-soft);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 400px) {
+      .parfume-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 10px 15px; }
+      .parfume-image { height: 140px; }
+      .modal-sheet { padding: 15px; }
+      .nav-brand-text { font-size: 16px; }
+    }
+    @media (min-width: 500px) {
+      .login-form { max-width: 400px; }
+      .parfume-grid { grid-template-columns: repeat(3, 1fr); padding: 0 20px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>°F</span>
+  </div>
+  <div class="notch"></div>
+
+  <div class="login-screen" id="loginScreen">
+    <div class="logo-container">
+      <div class="logo-icon">✦</div>
+      <h1 class="logo-text">FZ Parfumerie</h1>
+      <p class="login-subtitle">Haute Parfumerie</p>
+    </div>
+    <div class="login-form">
+      <div class="error-message" id="loginError"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="Enter your email" value="fzparfumerie@parfumerie.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter your password" value="admin123" required>
+        </div>
+        <button type="submit" class="btn-primary">Sign In</button>
+        <button type="button" class="btn-secondary" id="createAccountBtn">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-container main-app" id="mainApp">
+    <nav class="nav-bar">
+      <div class="nav-brand">
+        <div class="nav-brand-icon">✦</div>
+        <span class="nav-brand-text">FZ Parfumerie</span>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-icon" id="logoutBtn" title="Logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16,17 21,12 16,7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+        <button class="btn-icon" id="addBtn" title="Add Parfume">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <div class="app-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Parfume Collection</h2>
+          <p class="section-subtitle" id="parfumeCount">0 parfumes</p>
+        </div>
+      </div>
+      <div id="parfumeList" class="parfume-grid"></div>
+      <div id="loading" class="loading" style="display: none;"><div class="spinner"></div></div>
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="9" cy="9" r="2"></circle>
+          <path d="M21 15l-3-3L9 9"></path>
+        </svg>
+        <h3>No Parfumes Yet</h3>
+        <p>Start building your collection by adding your first parfume.</p>
+        <button class="btn-primary" onclick="openAddModal()">Add Parfume</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeAddModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <h2 class="modal-title" id="modalTitle">Add Parfume</h2>
+      <form id="parfumeForm">
+        <input type="hidden" id="editId">
+        <div class="form-row">
+          <label>Parfume Name *</label>
+          <input type="text" id="name" placeholder="e.g. Shalimar" required>
+        </div>
+        <div class="form-row">
+          <label>Brand *</label>
+          <input type="text" id="brand" placeholder="e.g. Guerlain" required>
+        </div>
+        <div class="form-row">
+          <label>Head Notes</label>
+          <textarea id="headNotes" placeholder="Top notes - citrus, herbs, light fruits..."></textarea>
+        </div>
+        <div class="form-row">
+          <label>Middle Notes</label>
+          <textarea id="middleNotes" placeholder="Heart notes - flowers, spices, fruits..."></textarea>
+        </div>
+        <div class="form-row">
+          <label>Base Notes</label>
+          <textarea id="baseNotes" placeholder="Base notes - woods, vanilla, musk..."></textarea>
+        </div>
+        <div class="form-row">
+          <label>Accords</label>
+          <input type="text" id="accords" placeholder="e.g. Floral, Oriental, Woody (comma separated)">
+        </div>
+        <div class="form-row image-upload">
+          <label>Image</label>
+          <div class="image-preview" id="imagePreview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="M21 15l-3-3L9 9"></path>
+            </svg>
+          </div>
+          <label class="image-upload-btn">
+            Choose Image
+            <input type="file" id="image" accept="image/*">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Save Parfume</button>
+          <button type="button" class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="home-indicator"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://ethddsqpwrawqkxlvxgr.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_AYlm2ZmTkbyAwEL0ZM_1hQ_CeYMI-Xu';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let parfumes = [];
+    let selectedImage = null;
+    let isEditMode = false;
+
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    const parfumeList = document.getElementById('parfumeList');
+    const emptyState = document.getElementById('emptyState');
+    const loading = document.getElementById('loading');
+    const addModal = document.getElementById('addModal');
+    const parfumeForm = document.getElementById('parfumeForm');
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    const loginError = document.getElementById('loginError');
+    const toast = document.getElementById('toast');
+    const modalTitle = document.getElementById('modalTitle');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('loginForm').addEventListener('submit', handleLogin);
+      document.getElementById('createAccountBtn').addEventListener('click', createAccount);
+      document.getElementById('addBtn').addEventListener('click', openAddModal);
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      parfumeForm.addEventListener('submit', handleFormSubmit);
+      imageInput.addEventListener('change', handleImageUpload);
+      addModal.addEventListener('click', (e) => {
+        if (e.target === addModal) closeAddModal();
+      });
+    }
+
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          showMainApp();
+          loadParfumes();
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      loginError.classList.remove('show');
+      loginError.textContent = '';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          if (error.message.includes('Email not confirmed')) {
+            loginError.textContent = 'Email not confirmed. Please check your inbox or contact admin.';
+          } else {
+            loginError.textContent = error.message;
+          }
+          loginError.classList.add('show');
+          showToast(error.message, 'error');
+          return;
+        }
+
+        if (data.user) {
+          showMainApp();
+          showToast('Welcome to FZ Parfumerie!', 'success');
+        }
+      } catch (error) {
+        loginError.textContent = 'An error occurred. Please try again.';
+        loginError.classList.add('show');
+        showToast('Login failed', 'error');
+      }
+    }
+
+    async function createAccount() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        showToast('Account created! Please check your email to verify.', 'success');
+      } catch (error) {
+        showToast('Failed to create account', 'error');
+      }
+    }
+
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+        showLoginScreen();
+        showToast('Logged out successfully', 'success');
+      } catch (error) {
+        showToast('Logout failed', 'error');
+      }
+    }
+
+    function showMainApp() {
+      loginScreen.style.display = 'none';
+      mainApp.style.display = 'flex';
+    }
+
+    function showLoginScreen() {
+      loginScreen.style.display = 'flex';
+      mainApp.style.display = 'none';
+    }
+
+    async function loadParfumes() {
+      loading.style.display = 'flex';
+      parfumeList.innerHTML = '';
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('parfumes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading parfumes:', error);
+          showToast('Failed to load parfumes', 'error');
+          loading.style.display = 'none';
+          return;
+        }
+
+        parfumes = data || [];
+        loading.style.display = 'none';
+        renderParfumes();
+      } catch (error) {
+        console.error('Error:', error);
+        loading.style.display = 'none';
+        showToast('Error loading parfumes', 'error');
+      }
+    }
+
+    function renderParfumes() {
+      if (parfumes.length === 0) {
+        parfumeList.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.getElementById('parfumeCount').textContent = '0 parfumes';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      document.getElementById('parfumeCount').textContent =
+        \`\${parfumes.length} parfume\${parfumes.length > 1 ? 's' : ''}\`;
+
+      parfumeList.innerHTML = parfumes.map(parfume => \`
+        <div class="parfume-card" onclick="openEditModal('\${parfume.id}')">
+          <div class="parfume-card-actions">
+            <button class="btn-action btn-action-danger" onclick="event.stopPropagation(); confirmDelete('\${parfume.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3,6 5,6 21,6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="parfume-image">
+            \${parfume.image_url
+              ? \`<img src="\${parfume.image_url}" alt="\${parfume.name}">\`
+              : \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <circle cx="9" cy="9" r="2"></circle>
+                  <path d="M21 15l-3-3L9 9"></path>
+                </svg>\`
+            }
+          </div>
+          <div class="parfume-info">
+            <div class="parfume-name">\${escapeHtml(parfume.name)}</div>
+            <div class="parfume-brand">\${escapeHtml(parfume.brand)}</div>
+          </div>
+        </div>
+      \`).join('');
+    }
+
+    function openAddModal() {
+      isEditMode = false;
+      document.getElementById('editId').value = '';
+      modalTitle.textContent = 'Add Parfume';
+      parfumeForm.reset();
+      imagePreview.innerHTML = \`
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="9" cy="9" r="2"></circle>
+          <path d="M21 15l-3-3L9 9"></path>
+        </svg>
+      \`;
+      selectedImage = null;
+      addModal.classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const parfume = parfumes.find(p => p.id === id);
+      if (!parfume) return;
+
+      isEditMode = true;
+      document.getElementById('editId').value = id;
+      modalTitle.textContent = 'Edit Parfume';
+      document.getElementById('name').value = parfume.name;
+      document.getElementById('brand').value = parfume.brand;
+      document.getElementById('headNotes').value = parfume.head_notes || '';
+      document.getElementById('middleNotes').value = parfume.middle_notes || '';
+      document.getElementById('baseNotes').value = parfume.base_notes || '';
+      document.getElementById('accords').value = parfume.accords || '';
+
+      if (parfume.image_url) {
+        imagePreview.innerHTML = \`<img src="\${parfume.image_url}" alt="\${parfume.name}">\`;
+        selectedImage = null;
+      } else {
+        imagePreview.innerHTML = \`
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <circle cx="9" cy="9" r="2"></circle>
+            <path d="M21 15l-3-3L9 9"></path>
+          </svg>
+        \`;
+        selectedImage = null;
+      }
+
+      addModal.classList.add('active');
+    }
+
+    function closeAddModal() {
+      addModal.classList.remove('active');
+    }
+
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      selectedImage = file;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imagePreview.innerHTML = \`<img src="\${event.target.result}" alt="Parfume image">\`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editId').value;
+      const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const headNotes = document.getElementById('headNotes').value.trim();
+      const middleNotes = document.getElementById('middleNotes').value.trim();
+      const baseNotes = document.getElementById('baseNotes').value.trim();
+      const accords = document.getElementById('accords').value.trim();
+
+      if (!name || !brand) {
+        showToast('Name and Brand are required', 'error');
+        return;
+      }
+
+      try {
+        let imageUrl = null;
+
+        if (selectedImage) {
+          const fileName = \`\${Date.now()}_\${selectedImage.name}\`;
+
+          const { error: uploadError } = await supabaseClient.storage
+            .from('parfume-images')
+            .upload(fileName, selectedImage);
+
+          if (uploadError) {
+            console.error('Image upload error:', uploadError);
+            showToast('Failed to upload image', 'error');
+            return;
+          }
+
+          const { data } = supabaseClient.storage
+            .from('parfume-images')
+            .getPublicUrl(fileName);
+
+          imageUrl = data.publicUrl;
+        }
+
+        if (editId) {
+          const updateData = {
+            name,
+            brand,
+            head_notes: headNotes,
+            middle_notes: middleNotes,
+            base_notes: baseNotes,
+            accords: accords
+          };
+
+          if (imageUrl) {
+            updateData.image_url = imageUrl;
+          }
+
+          const { error } = await supabaseClient
+            .from('parfumes')
+            .update(updateData)
+            .eq('id', editId);
+
+          if (error) throw error;
+          showToast('Parfume updated!', 'success');
+        } else {
+          const { error } = await supabaseClient
+            .from('parfumes')
+            .insert({
+              name,
+              brand,
+              head_notes: headNotes,
+              middle_notes: middleNotes,
+              base_notes: baseNotes,
+              accords: accords,
+              image_url: imageUrl
+            });
+
+          if (error) throw error;
+          showToast('Parfume added!', 'success');
+        }
+
+        closeAddModal();
+        await loadParfumes();
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Failed to save parfume', 'error');
+      }
+    }
+
+    function confirmDelete(id) {
+      const parfume = parfumes.find(p => p.id === id);
+      if (!parfume) return;
+
+      if (confirm(\`Delete "\${parfume.name}"?\`)) {
+        deleteParfume(id);
+      }
+    }
+
+    async function deleteParfume(id) {
+      try {
+        const { error } = await supabaseClient
+          .from('parfumes')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        showToast('Parfume deleted', 'success');
+        await loadParfumes();
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Failed to delete parfume', 'error');
+      }
+    }
+
+    function showToast(message, type = '') {
+      toast.textContent = message;
+      toast.className = \`toast \${type}\`;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
+      `, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+    }
+
+    // Handle 404
+    return new Response('Not Found', { status: 404 });
+  }
+};
